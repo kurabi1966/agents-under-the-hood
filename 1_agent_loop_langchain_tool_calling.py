@@ -11,9 +11,11 @@ from langsmith import traceable
 
 MAX_ITERATION = 10
 
-MODEL = "qwen3:1.7b"
-PROVIDER = "ollama"
-TEMPRETURE=0
+# MODEL = "qwen3:1.7b"
+# PROVIDER = "ollama"
+MODEL = "gpt-5"
+PROVIDER = "openai"
+TEMPERATURE=0
 
 #  ---- Tools (Langchain @toll decorator) -----
 
@@ -106,8 +108,8 @@ def run_agent(question: str):
     """
     tools = [get_product_price, apply_discount]
     tools_dict = {t.name: t for t in tools}
-    llm = init_chat_model(f"{PROVIDER}:{MODEL}", tempreture=TEMPRETURE)
-    llm_with_tolls = llm.bind_tools(tools)
+    llm = init_chat_model(f"{PROVIDER}:{MODEL}", temperature=TEMPERATURE)
+    llm_with_tolls = llm.bind_tools(tools, parallel_tool_calls=False)
     print(f">> Executing run_agent(question='{question}')")
     print("=" * 60)
     messages = [
@@ -136,17 +138,24 @@ def run_agent(question: str):
     ]
     for iteration in range(1,MAX_ITERATION + 1):
       print(f"\n--- Iteration {iteration} ---")
+      
       ai_message = llm_with_tolls.invoke(messages)
+      
+      messages.append(ai_message)
+      
+      
       tool_calls = ai_message.tool_calls
+      
       # if no toll calls, then this is the final answer
       if not tool_calls:
         print(f"\nFinal Answer: {ai_message.content}")
         return ai_message.content
       
-      tool_call = tool_calls[0]
-      tool_name = tool_call.get('name')
-      tool_args = tool_call.get("args", {})
-      tool_call_id = tool_call.get("id") # Do we need it?
+      for tool_call in tool_calls:
+        tool_name = tool_call["name"]  
+        tool_args = tool_call["args"]  
+        tool_call_id = tool_call["id"]  
+
       tool_to_use = tools_dict.get(tool_name)
       if tool_to_use is None:
         raise ValueError(f"Tool '{tool_name} not found")
@@ -157,7 +166,6 @@ def run_agent(question: str):
       observation = tool_to_use.invoke(tool_args)
       print(f"  [Tool Result] {observation}")
       # Do we need to combine the observation to the existing messages? Yes
-      messages.append(ai_message)
       messages.append(
         ToolMessage(content=str(observation), tool_call_id=tool_call_id) # ??? Why we are passing the tool_call_id? For tracing
       )
