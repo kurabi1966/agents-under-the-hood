@@ -11,10 +11,10 @@ from langsmith import traceable
 
 MAX_ITERATION = 10
 
-# MODEL = "qwen3:1.7b"
-# PROVIDER = "ollama"
-MODEL = "gpt-5"
-PROVIDER = "openai"
+MODEL = "qwen3:1.7b"
+PROVIDER = "ollama"
+# MODEL = "gpt-5"
+# PROVIDER = "openai"
 TEMPERATURE=0
 
 #  ---- Tools (Langchain @toll decorator) -----
@@ -109,7 +109,7 @@ def run_agent(question: str):
     tools = [get_product_price, apply_discount]
     tools_dict = {t.name: t for t in tools}
     llm = init_chat_model(f"{PROVIDER}:{MODEL}", temperature=TEMPERATURE)
-    llm_with_tolls = llm.bind_tools(tools, parallel_tool_calls=False)
+    llm_with_tolls = llm.bind_tools(tools)
     print(f">> Executing run_agent(question='{question}')")
     print("=" * 60)
     messages = [
