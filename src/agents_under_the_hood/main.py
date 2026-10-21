@@ -1,8 +1,3 @@
-
-
-
-
-
 def main():
     """
     The main function that serves as the entry point for the program.
@@ -10,6 +5,6 @@ def main():
     """
     print("Starting the application...")
 
-    
+
 if __name__ == "__main__":
     main()
