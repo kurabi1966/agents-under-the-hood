@@ -11,7 +11,9 @@ from langsmith import traceable
 
 MAX_ITERATION = 10
 
-MODEL = "qwen3:1.7b"
+# MODEL = "qwen3:1.7b"
+# PROVIDER = "ollama"
+MODEL = "granite4:3b"
 PROVIDER = "ollama"
 # MODEL = "gpt-5"
 # PROVIDER = "openai"
@@ -183,4 +185,4 @@ def run_agent(question: str):
 if __name__ == "__main__":
     print("Hello LangChain Agent (.bind_tools)")
     print()
-    result = run_agent("What is the price of a laptop after applying a gold discount?")
+    result = run_agent("What is the price of a laptop after applying a bronze discount?")
